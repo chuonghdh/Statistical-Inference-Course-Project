@@ -1,0 +1,49 @@
+---
+title: "Statistical Inference Course Project - Part 1"
+author: "Chuong Hoang"
+date: "Sunday, June 14, 2015"
+output: html_document
+---
+
+##Overview:
+In this project we will investigate the exponential distribution in R and compare it with the Central Limit Theorem. The exponential distribution is simulated with rexp(n, lambda) where lambda is the rate parameter. Set up lambda = 0.2 for all of the simulations. We will investigate the distribution of averages of 40 exponentials under a thousand simulations.
+
+##Simulations:
+```{r}
+n <- 40
+lambda <- 0.2
+mns = NULL
+for (i in 1 : 1000) mns = c(mns, mean(rexp(n,lambda)))
+hist(mns)
+```
+
+##Sample Mean versus Theoretical Mean: 
+```{r}
+samp_mean <- mean(mns)
+theo_mean <- 1/lambda
+```
+
+```{r}
+par(mfrow=c(2,1))
+hist(mns,probability=T,main=paste('Theoretical Mean of ',format(round(theo_mean,2),nsmall=2)),ylim=c(0,0.55),col='gray',xlab='Means of Simulation Set')
+abline(v=theo_mean,col='red',lwd=5)
+hist(mns,probability=T,main=paste('Actual Mean of ',format(round(samp_mean,2),nsmall=2)),ylim=c(0,0.55),col='gray',xlab='Means of Simulation Set')
+abline(v=samp_mean,col='green',lwd=5)
+```
+
+##Sample Variance versus Theoretical Variance: 
+```{r}
+# calulate the variances
+theo_var<-((1/lambda)^2)/n     # theoretical variance
+samp_var<-var(mns)
+```
+
+##Distribution: 
+```{r}
+par(mfrow=c(1,1))
+hist(scale(mns),probability=T,main='',ylim=c(0,0.5),xlab='')
+curve(dnorm(x,0,1),-3,3, col='red',add=T) # normal distribution
+lines(density(scale(mns)),col='blue') # actual distribution 
+legend(2,0.4,c('Normal','Actual'),cex=0.8,col=c('red','blue'),lty=1)
+```
+
