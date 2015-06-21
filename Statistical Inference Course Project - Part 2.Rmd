@@ -1,0 +1,102 @@
+---
+title: "Statistical Inference Course Project - Part 2"
+author: "Chuong Hoang"
+date: "Sunday, June 21, 2015"
+output: 
+  html_document:
+    keep_md: yes
+  pdf_document: default
+  word_document: default
+---
+
+## Overview:
+In the second part of the project, we analyze the **ToothGrowth** data in the R datasets package. The data is set of 60 observations, length of odontoblasts (teeth) in each of 10 guinea pigs at each of three dose levels of Vitamin C (0.5, 1 and 2 mg) with each of two delivery methods (orange juice or ascorbic acid).
+
+## Data Loading:
+**Load the ToothGrowth data and perform some basic exploratory data analyses**
+
+```{r}
+# Load the ToothGrowth dataset
+library(datasets)
+data(ToothGrowth)
+
+# Overview dataset variables
+str(ToothGrowth)
+```
+
+The ToothGrowth data is comprised of 60 observations and 3 variables: len, supp and dose.
+
+**Basic exploratory**
+plot ToothGrowth data to have a general exploratory
+
+```{r}
+## Basic exploratory
+plot(ToothGrowth)
+```
+
+In orignal dataset, the dose variable is numeric. But based on characteristic of dose variables demontrating in the third column of the plot, There is only 3 levels of Vitamin C (0.5, 1 and 2 mg). As a result of the basic exploratory, it is neccessary to convert dose to factor.
+
+```{r}
+# Convert ToothGrowth$dose from numeric to factor
+ToothGrowth$dose <- as.factor(ToothGrowth$dose)
+
+# Review the structure of dataset
+str(ToothGrowth)
+```
+
+## Data Summary:
+**Provide a basic summary of the data.**
+
+```{r}
+# Summary the ToothGrowth dataset
+summary(ToothGrowth)
+
+# Visualize the ToothGrowth dataset summary
+library(ggplot2)
+ggplot(data = ToothGrowth, aes(x = dose, y = len, fill = supp)) + geom_boxplot() + ggtitle("Summary of ThoothGrowth dataset")
+```
+
+The graphical demonstration revals a clear positive correlation between the tooth length and the dose levels of Vitamin C, for both delivery methods: orange juice (OJ) and ascorbic acid (VC).
+
+## Analyze:
+Author use hypothesis tests to compare tooth growth by supp and dose.
+
+Considering unequal variances between 2 suppelement groups (`var.equal = FALSE`). We use t.test with default confidence level is .95. We check if there's difference in the performance of the treatments, looking if the p value>0.05 and if the confidence interval contains 0
+
+```{r}
+g1 <- ToothGrowth[ToothGrowth$supp=="OJ","len"]
+g2 <- ToothGrowth[ToothGrowth$supp=="VC","len"]
+t.test(g1, g2, paired = FALSE, var.equal = FALSE)
+```
+
+As the p-value of this test is 0.06, we have not enough evidence to reject the null hypothesis, which subsequently means that we cannot assume that the means of delivery of the vitamin has any effect on tooth length.
+
+```{r}
+# We will test of the tooth length of the group with vitamin C dosage
+g1 <- ToothGrowth[ToothGrowth$dose==2,"len"]
+g2 <- ToothGrowth[ToothGrowth$dose==1,"len"]
+t.test(g1, g2, paired = FALSE, var.equal = TRUE)
+```
+
+We have enough evidence to reject the null hypothesis, which subsequently means that we can assume that the means of dosage change from 1mg to 2mg creates an positive effect on tooth length.
+
+```{r}
+g1 <- ToothGrowth[ToothGrowth$dose==1,"len"]
+g2 <- ToothGrowth[ToothGrowth$dose==0.5,"len"]
+t.test(g1, g2, paired = FALSE, var.equal = TRUE)
+```
+
+We have enough evidence to reject the null hypothesis, which subsequently means that we can assume that the means of dosage change from 0.5mg to 1mg creates an positive effect on tooth length.
+
+The confidence interval does not contain zero. There's no need to compare the groups of vitamin C dosage of 0.5 and 2mg, given the result of the two previous test.
+
+## Conclusions and Assumptions:
+
+**Assumptions:** 
+
+There's a common variance in the guinea pigs population (`var.equal=TRUE`). The experiment design suggest that each Guinea pig was randomly assigned to a combination of dosage and supplement type, so the test that we performed used the independent samples methodology.
+
+**Conclusions:**
+
+1. Supplement type has no effect on tooth growth.
+2. Inreasing the dose level leads to increased tooth growth.
